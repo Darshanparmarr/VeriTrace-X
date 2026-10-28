@@ -1,9 +1,26 @@
-import { Menu, Search, Bell, ChevronDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Menu, Search, Bell, LogOut } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { StatusPill } from '@/components/ui/states'
+import { useAuth } from '@/features/auth/AuthContext'
 
 /** Application top bar: menu toggle, search, service status, user. */
 export function Topbar({ onMenu }) {
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
+
+  const initials = (user?.full_name || 'User')
+    .split(' ')
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
+  function handleLogout() {
+    logout()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-3 border-b border-border bg-background/80 px-4 backdrop-blur-md lg:px-6">
       <button
@@ -31,19 +48,28 @@ export function Topbar({ onMenu }) {
           <Bell className="size-5" />
           <span className="absolute right-2 top-2 size-1.5 rounded-full bg-amber" />
         </Button>
-        <button
-          type="button"
-          className="flex items-center gap-2 rounded-xl border border-border bg-card px-2 py-1.5 text-sm hover:bg-muted"
-        >
+        <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-2 py-1.5 text-sm">
           <span className="flex size-7 items-center justify-center rounded-full bg-amber text-xs font-bold text-white">
-            VX
+            {initials}
           </span>
           <span className="hidden text-left sm:block">
-            <span className="block text-xs font-semibold leading-tight">Analyst</span>
-            <span className="block text-[11px] leading-tight text-muted-foreground">Reviewer</span>
+            <span className="block max-w-[10rem] truncate text-xs font-semibold leading-tight">
+              {user?.full_name || 'User'}
+            </span>
+            <span className="block text-[11px] capitalize leading-tight text-muted-foreground">
+              {user?.role || 'analyst'}
+            </span>
           </span>
-          <ChevronDown className="hidden size-4 text-muted-foreground sm:block" />
-        </button>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="ml-1 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Sign out"
+            title="Sign out"
+          >
+            <LogOut className="size-4" />
+          </button>
+        </div>
       </div>
     </header>
   )

@@ -27,6 +27,10 @@ build/
 *.sqlite
 *.sqlite3
 
+# Backend runtime
+backend/uploads/
+backend/.venv/
+
 # ML artifacts (large binaries) — keep structure, ignore weights/data
 ml/artifacts/*.pkl
 ml/artifacts/*.joblib

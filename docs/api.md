@@ -1,26 +1,38 @@
-# API (planned — Phase 2+)
+# API
 
-Base prefix: `/api/v1`. OpenAPI docs will be served at `/docs` (Swagger) and `/redoc`.
+Base prefix: `/api/v1`. OpenAPI docs served at `/docs` (Swagger) and `/redoc`.
+Auth: JWT bearer tokens (`Authorization: Bearer <token>`).
 
-| Method | Path | Purpose |
-|---|---|---|
-| POST | `/auth/register` | Create a user |
-| POST | `/auth/login` | Obtain an access token |
-| GET | `/dashboard/summary` | KPI + status overview |
-| POST | `/datasets/upload` | Upload CSV/Excel (validated, size-limited) |
-| GET | `/datasets/{dataset_id}` | Dataset metadata + validation report |
-| POST | `/analyses` | Start an analysis job (async) |
-| GET | `/analyses/{analysis_id}` | Job status + progress + summary |
-| GET | `/transactions` | List (search, filter, sort, paginate) |
-| GET | `/transactions/{id}` | Transaction detail |
-| GET | `/transactions/{id}/explanation` | SHAP/LIME explanation |
-| POST | `/transactions/{id}/reviews` | Record a review decision |
-| GET | `/audit-events` | List audit events |
-| GET | `/audit-events/{event_id}/verify` | Verify against the ledger (or "unavailable") |
-| GET | `/reports` | Report data for export |
+Status legend: ✅ implemented (Phase 2) · ⏳ planned.
 
-Conventions: consistent error envelope, request/response validation (Pydantic), JWT auth,
-role-based authorization, structured logging, and rate limiting on sensitive routes. Secrets,
-stack traces, and raw uploaded data are never returned in responses.
+| | Method | Path | Purpose |
+|---|---|---|---|
+| ✅ | GET | `/health` | Service status (model + blockchain, honest states) |
+| ✅ | POST | `/auth/register` | Create a user, returns a token |
+| ✅ | POST | `/auth/login` | Obtain an access token |
+| ✅ | GET | `/auth/me` | Current user profile |
+| ✅ | POST | `/datasets/upload` | Upload CSV/Excel — size-limited, validated, preview |
+| ✅ | GET | `/datasets/{dataset_id}` | Dataset metadata + validation report |
+| ✅ | GET | `/datasets/sample/template` | Download a fill-in CSV template |
+| ✅ | GET | `/datasets/sample/example` | Download a synthetic example dataset |
+| ✅ | GET | `/dashboard/summary` | KPI + status overview (real counts; `is_demo` when empty) |
+| ⏳ | POST | `/analyses` | Start an analysis job (async) — Phase 3 |
+| ⏳ | GET | `/analyses/{analysis_id}` | Job status + progress + summary — Phase 3 |
+| ⏳ | GET | `/transactions` | List (search, filter, sort, paginate) — Phase 4 |
+| ⏳ | GET | `/transactions/{id}` | Transaction detail — Phase 4 |
+| ⏳ | GET | `/transactions/{id}/explanation` | SHAP/LIME explanation — Phase 3/4 |
+| ⏳ | POST | `/transactions/{id}/reviews` | Record a review decision — Phase 4 |
+| ⏳ | GET | `/audit-events` | List audit events — Phase 5 |
+| ⏳ | GET | `/audit-events/{event_id}/verify` | Verify against the ledger — Phase 5 |
+| ⏳ | GET | `/reports` | Report data for export — Phase 6 |
 
-> This file is fleshed out with request/response schemas as endpoints are implemented.
+### Upload validation contract
+`POST /datasets/upload` (multipart `file`) returns `{ dataset, validation, preview }`:
+- `validation.is_valid` — false when a **required** canonical column (order_id, order_value) is missing.
+- `validation.required_missing` / `required_present`, `suggested_mapping` (fuzzy source→canonical),
+  `duplicate_rows`, `missing_values`, `issues` (e.g. non-numeric), `warnings`.
+- Malformed CSV rows are **reported** (counted in warnings), never silently dropped.
+
+Conventions: consistent error envelope (`{"detail": ...}`), Pydantic validation, JWT auth,
+role-based authorization (upload requires analyst/admin), CORS restricted to configured origins.
+Secrets, stack traces, and raw uploaded data are never returned. Rate limiting: Phase 6.

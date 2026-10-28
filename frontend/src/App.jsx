@@ -2,9 +2,13 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AppLayout } from '@/layouts/AppLayout'
 import { Spinner } from '@/components/ui/states'
+import { AuthProvider } from '@/features/auth/AuthContext'
+import { ProtectedRoute } from '@/features/auth/ProtectedRoute'
 
 // Lazy-load pages for faster initial load.
 const Landing = lazy(() => import('@/pages/Landing'))
+const Login = lazy(() => import('@/pages/Login'))
+const Register = lazy(() => import('@/pages/Register'))
 const Dashboard = lazy(() => import('@/pages/Dashboard'))
 const AnalyzeData = lazy(() => import('@/pages/AnalyzeData'))
 const Transactions = lazy(() => import('@/pages/Transactions'))
@@ -28,14 +32,23 @@ function PageFallback() {
 export default function App() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<PageFallback />}>
-        <Routes>
-          {/* Public marketing site */}
-          <Route path="/" element={<Landing />} />
+      <AuthProvider>
+        <Suspense fallback={<PageFallback />}>
+          <Routes>
+            {/* Public marketing site + auth */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-          {/* Authenticated application shell */}
-          <Route element={<AppLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            {/* Authenticated application shell */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/analyze" element={<AnalyzeData />} />
             <Route path="/transactions" element={<Transactions />} />
             <Route path="/transactions/:id" element={<TransactionDetails />} />
@@ -45,11 +58,12 @@ export default function App() {
             <Route path="/audit" element={<Audit />} />
             <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
-          </Route>
+            </Route>
 
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Suspense>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

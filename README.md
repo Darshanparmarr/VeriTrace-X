@@ -61,7 +61,10 @@ methodology, and [`docs/deployment.md`](docs/deployment.md) for free-tier deploy
 This project is built in phases. See the progress notes at the top of each phase in the docs.
 
 - [x] **Phase 1** — Scaffold, Clean Amber design system, navigation, reusable components, landing page.
-- [ ] **Phase 2** — Backend, auth, dataset upload/validation.
+- [x] **Phase 2** — FastAPI backend, 11-table schema + Alembic migration, JWT auth (register/login/me),
+  dataset upload with real validation (required columns, duplicates, type checks, mapping suggestions,
+  safe parsing), sample template/example downloads, dashboard summary; frontend auth flow + protected
+  routes + live upload UI. 24 backend + frontend tests passing.
 - [ ] **Phase 3** — ML training/evaluation, prediction API, SHAP/LIME.
 - [ ] **Phase 4** — Dashboard, transactions, details, human review.
 - [ ] **Phase 5** — Traceability + Hyperledger Fabric integration.
