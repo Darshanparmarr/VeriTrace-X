@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_roles
+from app.core.ratelimit import rate_limit
 from app.models.user import Role, User
 from app.schemas.dataset import DatasetDetail, UploadResponse, ValidationReport
 from app.services import dataset_service, sample_data
@@ -18,7 +19,12 @@ router = APIRouter(prefix="/datasets", tags=["datasets"])
 _ALLOWED_SUFFIX = (".csv", ".tsv", ".txt", ".xlsx", ".xls")
 
 
-@router.post("/upload", response_model=UploadResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload",
+    response_model=UploadResponse,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(rate_limit(30, 60, "upload"))],
+)
 async def upload_dataset(
     file: UploadFile,
     db: Session = Depends(get_db),

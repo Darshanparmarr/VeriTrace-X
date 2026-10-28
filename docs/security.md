@@ -1,16 +1,20 @@
 # Security & data handling
 
-## Principles
+## Principles (implemented)
 - **Secrets** live in environment variables only; `.env` is git-ignored, `.env.example` documents keys.
-- **Passwords** are hashed (bcrypt/argon2 via passlib) — never stored in plaintext (Phase 2).
-- **AuthZ**: protected endpoints + role-based checks; a model prediction never auto-confirms fraud.
-- **CORS** is restricted to configured origins (`CORS_ORIGINS`).
-- **File uploads** are size-limited, type-checked, parsed defensively (malformed CSV/XLSX handled),
-  and never executed. Original uploads are never overwritten.
-- **Export safety**: CSV/Excel exports are guarded against spreadsheet formula injection (values
-  beginning with `= + - @` are neutralised).
-- **Responses** never leak secrets, stack traces, or raw uploaded data.
-- **Rate limiting** on auth and upload routes (Phase 2/6).
+- **Passwords** are hashed with bcrypt (direct, 72-byte guarded) — never stored in plaintext.
+- **AuthZ**: JWT bearer tokens; role-based checks (viewers can't record reviews; upload/threshold
+  changes require analyst/admin). A model prediction never auto-confirms fraud.
+- **CORS** restricted to configured origins (`CORS_ORIGINS`).
+- **Security headers** on every response: `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`,
+  `Referrer-Policy`, `Permissions-Policy`, and HSTS in production.
+- **Rate limiting** (in-memory, per IP) on `/auth/login`, `/auth/register`, `/datasets/upload`
+  → HTTP 429 when exceeded. Back with Redis for multi-instance production.
+- **File uploads** are size-limited, type-checked, parsed defensively (malformed CSV/XLSX rows are
+  reported, never executed or silently dropped). Original uploads are never overwritten.
+- **Export safety**: CSV exports neutralise spreadsheet formula injection (values beginning with
+  `= + - @` are prefixed with `'`). Verified by tests.
+- **Responses** never leak secrets, stack traces, or raw uploaded data (generic 500 envelope).
 
 ## Data retention & deletion (to finalise in Phase 6)
 - Public demo uses synthetic/public data only — no private datasets are published.

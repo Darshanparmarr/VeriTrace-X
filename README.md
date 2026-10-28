@@ -76,7 +76,10 @@ This project is built in phases. See the progress notes at the top of each phase
   events); tamper-evident **dev-mode hash-chain** audit trail with live verification
   (Verified / Failed / Unavailable) — honestly *not* a public blockchain — plus the Hyperledger
   Fabric production path (chaincode sketch, scripts, adapter seam). See [`blockchain/README.md`](blockchain/README.md).
-- [ ] **Phase 6** — Reports, security hardening, automated tests.
+- [x] **Phase 6** — Reports (fraud-risk/review/model summaries + formula-injection-safe CSV exports)
+  and Settings (configurable persisted risk thresholds, profile, model config) wired to real data;
+  security hardening (rate limiting, security headers, role checks); performance indexes; 36 backend
+  tests + 7 frontend tests; Playwright e2e scaffolding.
 - [ ] **Phase 7** — Deployment, docs, public demo.
 
 ## License

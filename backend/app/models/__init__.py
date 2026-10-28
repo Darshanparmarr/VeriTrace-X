@@ -14,12 +14,14 @@ from app.models.prediction import (
     Prediction,
 )
 from app.models.review import ReviewCase, ReviewDecision
+from app.models.setting import AppSetting
 from app.models.transaction import RiskBand, ReviewStatus, Transaction
 from app.models.user import Role, User
 
 __all__ = [
     "AnalysisJob",
     "AnalysisStatus",
+    "AppSetting",
     "AuditEvent",
     "AuditEventType",
     "BlockchainReference",

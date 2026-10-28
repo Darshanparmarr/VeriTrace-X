@@ -28,7 +28,11 @@ Status legend: ✅ implemented (Phase 2) · ⏳ planned.
 | ✅ | GET | `/audit-events` | List tamper-evident audit events |
 | ✅ | GET | `/audit-events/{event_id}` | Audit event detail (hashes) |
 | ✅ | GET | `/audit-events/{event_id}/verify` | Verify integrity (development hash-chain; `unavailable` in fabric mode until configured) |
-| ⏳ | GET | `/reports` | Report data for export — Phase 6 |
+| ✅ | GET | `/reports/summary` | Fraud-risk + review-outcome + model-performance summary |
+| ✅ | GET | `/reports/transactions.csv` | Transaction-level CSV export (formula-injection-safe) |
+| ✅ | GET | `/reports/reviews.csv` | Review-decision CSV export |
+| ✅ | GET | `/settings/thresholds` | Current risk-band thresholds |
+| ✅ | PUT | `/settings/thresholds` | Update thresholds (analyst/admin; `0<low<medium<high<1`) |
 
 ### Upload validation contract
 `POST /datasets/upload` (multipart `file`) returns `{ dataset, validation, preview }`:
@@ -38,5 +42,6 @@ Status legend: ✅ implemented (Phase 2) · ⏳ planned.
 - Malformed CSV rows are **reported** (counted in warnings), never silently dropped.
 
 Conventions: consistent error envelope (`{"detail": ...}`), Pydantic validation, JWT auth,
-role-based authorization (upload requires analyst/admin), CORS restricted to configured origins.
-Secrets, stack traces, and raw uploaded data are never returned. Rate limiting: Phase 6.
+role-based authorization (upload requires analyst/admin), CORS restricted to configured origins,
+security headers on every response, and **rate limiting** on auth + upload (HTTP 429 when exceeded).
+Secrets, stack traces, and raw uploaded data are never returned.

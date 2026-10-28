@@ -31,6 +31,16 @@ def db_session():
         Base.metadata.drop_all(bind=engine)
 
 
+@pytest.fixture(autouse=True)
+def _reset_rate_limiter():
+    # Each test starts with a clean limiter so shared in-process state doesn't leak.
+    from app.core.ratelimit import limiter
+
+    limiter.reset()
+    yield
+    limiter.reset()
+
+
 @pytest.fixture()
 def client(db_session):
     def _override_get_db():

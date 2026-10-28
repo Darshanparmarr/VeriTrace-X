@@ -44,6 +44,9 @@ class Settings(BaseSettings):
     max_upload_mb: int = 50
     upload_dir: str = (REPO_ROOT / "backend" / "uploads").as_posix()
 
+    # ── Rate limiting ──
+    rate_limit_enabled: bool = True
+
     # ── ML (wired in Phase 3) ──
     model_artifact_path: str = "ml/artifacts/model.joblib"
     model_metadata_path: str = "ml/artifacts/model_meta.json"

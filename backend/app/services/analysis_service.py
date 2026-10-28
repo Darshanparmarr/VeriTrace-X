@@ -103,9 +103,10 @@ def run_analysis(db: Session, dataset: Dataset, user: User | None) -> AnalysisJo
 
         scores = predictor.score_frame(work)
         X_feat, _ = build_features(work)
-        thresholds = (predictor.meta or {}).get(
-            "risk_band_thresholds", {"low": 0.25, "medium": 0.5, "high": 0.75}
-        )
+        # Configurable thresholds (Settings) take precedence over the model defaults.
+        from app.services.settings_service import get_thresholds
+
+        thresholds = get_thresholds(db)
         cols = _display_map(work.columns)
 
         band_counts = {b.value: 0 for b in (RiskBand.low, RiskBand.medium, RiskBand.high, RiskBand.critical)}

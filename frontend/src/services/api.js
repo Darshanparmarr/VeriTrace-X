@@ -117,4 +117,27 @@ export const api = {
     return request(`/audit-events${qs ? `?${qs}` : ''}`)
   },
   verifyAuditEvent: (id) => request(`/audit-events/${id}/verify`),
+
+  // Reports
+  reportSummary: () => request('/reports/summary'),
+  downloadReport: (kind, filename) => downloadFile(`/reports/${kind}.csv`, filename),
+
+  // Settings
+  getThresholds: () => request('/settings/thresholds'),
+  updateThresholds: (payload) => request('/settings/thresholds', { method: 'PUT', body: payload }),
+}
+
+/** Fetch a protected file with auth and trigger a browser download. */
+export async function downloadFile(path, filename) {
+  const res = await request(path, { raw: true })
+  if (!res.ok) throw new ApiError('Download failed', res.status, null)
+  const blob = await res.blob()
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  URL.revokeObjectURL(url)
 }
