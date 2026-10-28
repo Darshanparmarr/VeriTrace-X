@@ -2,6 +2,8 @@
   <img src="frontend/public/logo.png" alt="VeriTrace-X" width="320" />
   <h3>Trust Every Transaction. Explain Every Risk.</h3>
   <p>An Explainable-AI framework for blockchain-based fraud detection in supply-chain traceability.</p>
+
+  ![CI](https://github.com/Darshanparmarr/VeriTrace-X/actions/workflows/ci.yml/badge.svg)
 </div>
 
 ---
@@ -53,8 +55,18 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload                       # http://localhost:8000
 ```
 
+### One-command full stack (Docker)
+```bash
+docker compose up --build        # frontend :8080 · backend :8000/docs
+docker compose exec backend python scripts/seed_demo.py   # optional demo data
+```
+The backend image bakes a **synthetic-data** model so predictions work immediately (clearly labelled).
+
+### Demo account (after seeding)
+`demo@veritrace.x` / `demo-analyst-123` — or just register your own at `/register`.
+
 See [`docs/setup.md`](docs/setup.md) for full setup, [`docs/model-evaluation.md`](docs/model-evaluation.md) for the ML
-methodology, and [`docs/deployment.md`](docs/deployment.md) for free-tier deployment.
+methodology, and [`docs/deployment.md`](docs/deployment.md) for Docker + free-tier (Vercel/Render) deployment.
 
 ## Build status
 
@@ -80,7 +92,8 @@ This project is built in phases. See the progress notes at the top of each phase
   and Settings (configurable persisted risk thresholds, profile, model config) wired to real data;
   security hardening (rate limiting, security headers, role checks); performance indexes; 36 backend
   tests + 7 frontend tests; Playwright e2e scaffolding.
-- [ ] **Phase 7** — Deployment, docs, public demo.
+- [x] **Phase 7** — Dockerfiles (backend + frontend) + `docker-compose.yml` (Postgres + both tiers),
+  GitHub Actions CI, Vercel + Render deploy configs, demo-seed script, and finalized docs.
 
 ## License
 

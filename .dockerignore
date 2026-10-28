@@ -1,0 +1,24 @@
+# Keep the build context small and free of large/secret files.
+.git/
+**/node_modules/
+**/.venv/
+**/__pycache__/
+**/*.pyc
+**/dist/
+*.db
+*.sqlite
+.env
+.env.*
+
+# Never ship the raw dataset or trained binaries into the image
+# (the backend image trains a small synthetic model at build time instead).
+ml/data/raw/*
+ml/data/processed/*
+ml/artifacts/*.joblib
+ml/notebooks/
+
+backend/uploads/
+backend/.pytest_cache/
+frontend/playwright-report/
+frontend/test-results/
+docs/

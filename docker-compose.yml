@@ -1,0 +1,55 @@
+# Local full-stack dev/demo: Postgres + FastAPI backend + nginx-served frontend.
+#   docker compose up --build
+#   frontend  -> http://localhost:8080
+#   backend   -> http://localhost:8000/docs
+#
+# The backend image bakes a SYNTHETIC-data model so predictions work out of the box.
+# To use the real model, train locally (ml/) and mount ./ml/artifacts into the backend.
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: veritrace
+      POSTGRES_PASSWORD: veritrace
+      POSTGRES_DB: veritrace
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U veritrace"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    environment:
+      APP_ENV: production
+      SECRET_KEY: change-me-in-production
+      DATABASE_URL: postgresql+psycopg://veritrace:veritrace@db:5432/veritrace
+      CORS_ORIGINS: http://localhost:8080
+      BLOCKCHAIN_MODE: development
+      WEB_CONCURRENCY: "2"
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    # To serve the real model instead of the baked synthetic one:
+    # volumes:
+    #   - ./ml/artifacts:/app/ml/artifacts:ro
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

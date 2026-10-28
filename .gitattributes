@@ -1,0 +1,9 @@
+# Keep shell scripts and Dockerfiles LF so they work inside Linux containers
+# (CRLF would break the shebang / COPY'd entrypoints on Windows checkouts).
+*.sh text eol=lf
+entrypoint.sh text eol=lf
+Dockerfile text eol=lf
+*.Dockerfile text eol=lf
+
+# Normalise text files; let Git pick line endings elsewhere.
+* text=auto

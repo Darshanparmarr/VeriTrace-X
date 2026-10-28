@@ -61,6 +61,18 @@ class Settings(BaseSettings):
             return [o.strip() for o in v.split(",") if o.strip()]
         return v
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def _normalize_db_url(cls, v):
+        # Managed hosts (Render/Heroku/Neon) hand out postgres:// or postgresql://
+        # URLs that default to psycopg2. We use psycopg (v3) — rewrite the scheme.
+        if isinstance(v, str):
+            if v.startswith("postgres://"):
+                return "postgresql+psycopg://" + v[len("postgres://"):]
+            if v.startswith("postgresql://"):
+                return "postgresql+psycopg://" + v[len("postgresql://"):]
+        return v
+
     @property
     def is_production(self) -> bool:
         return self.app_env.lower() == "production"

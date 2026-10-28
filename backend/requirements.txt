@@ -11,7 +11,7 @@ pydantic-settings==2.6.1
 # ── Database ──
 SQLAlchemy==2.0.36
 alembic==1.14.0
-# psycopg[binary]==3.2.3        # uncomment for PostgreSQL in production
+psycopg[binary]==3.2.3          # PostgreSQL driver (production / Docker; SQLite needs no driver)
 
 # ── Auth / security ──
 PyJWT==2.10.1
