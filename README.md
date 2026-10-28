@@ -69,7 +69,9 @@ This project is built in phases. See the progress notes at the top of each phase
   leakage checks, class-imbalance handling) trained on the real DataCo dataset (ROC-AUC 0.89);
   prediction API, analysis jobs, SHAP global + per-transaction local explanations; Explainable AI
   page wired to the live model card. See [`docs/model-evaluation.md`](docs/model-evaluation.md).
-- [ ] **Phase 4** — Dashboard, transactions, details, human review.
+- [x] **Phase 4** — Dashboard, transactions table, and VX transaction detail/investigation page all
+  wired to live data; human review workflow (record decision, required reasons to escalate/confirm,
+  preserved history, dashboard activity feed). Real SHAP explanations on the details page.
 - [ ] **Phase 5** — Traceability + Hyperledger Fabric integration.
 - [ ] **Phase 6** — Reports, security hardening, automated tests.
 - [ ] **Phase 7** — Deployment, docs, public demo.

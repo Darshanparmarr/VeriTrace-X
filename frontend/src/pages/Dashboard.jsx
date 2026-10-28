@@ -6,7 +6,7 @@ import {
   CheckCircle2,
   Brain,
   Link2Off,
-  Info,
+  ScanSearch,
 } from 'lucide-react'
 import {
   ResponsiveContainer,
@@ -24,21 +24,19 @@ import { PageHeader } from '@/components/layout/PageHeader'
 import { StatCard } from '@/components/StatCard'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { StatusPill } from '@/components/ui/states'
+import { StatusPill, EmptyState, ErrorState } from '@/components/ui/states'
 import { RiskBadge } from '@/components/ui/risk-badge'
 import { Button } from '@/components/ui/button'
-import { formatCompact, formatCurrency, formatPercent } from '@/lib/utils'
-import {
-  dashboardSummary,
-  riskDistribution,
-  riskTrend,
-  recentTransactions,
-  reviewActivity,
-} from '@/services/demoData'
+import { Skeleton } from '@/components/ui/skeleton'
+import { formatCompact, formatCurrency, formatPercent, formatDate } from '@/lib/utils'
+import { api } from '@/services/api'
+import { useApi } from '@/hooks/useApi'
+
+const BAND_COLORS = { Low: '#059669', Medium: '#F59E0B', High: '#D97706', Critical: '#DC2626' }
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const s = dashboardSummary
+  const { data, loading, error, reload } = useApi(() => api.dashboardSummary(), [])
 
   return (
     <div>
@@ -47,98 +45,83 @@ export default function Dashboard() {
         description="Overview of analyzed transactions, risk distribution, and review activity."
         actions={
           <Button onClick={() => navigate('/analyze')} className="gap-2">
-            Analyze data
+            <ScanSearch className="size-4" /> Analyze data
           </Button>
         }
       />
 
-      {/* Demo-data disclosure — required: seeded figures must be labelled. */}
-      <div className="mb-6 flex items-start gap-3 rounded-card border border-amber-soft/50 bg-amber-surface/50 px-4 py-3 text-sm text-amber-brown">
-        <Info className="mt-0.5 size-4 shrink-0" />
-        <p>
-          These figures are <strong>seeded demo data</strong> for illustration. They are not live
-          production statistics and the risk scores shown are not real model output. Run an analysis
-          in <button className="font-semibold underline" onClick={() => navigate('/analyze')}>Analyze Data</button> to
-          populate real results.
-        </p>
-      </div>
+      {loading && <DashboardSkeleton />}
 
-      {/* KPI row */}
+      {error && !loading && (
+        <ErrorState
+          title="Couldn't load the dashboard"
+          description={error}
+          action={
+            <Button variant="outline" size="sm" onClick={reload}>
+              Retry
+            </Button>
+          }
+        />
+      )}
+
+      {data && !loading && data.is_demo && (
+        <EmptyState
+          icon={ScanSearch}
+          title="No analysis yet"
+          description="Upload a dataset and run an analysis to populate the dashboard with real risk scores and review activity."
+          action={<Button onClick={() => navigate('/analyze')}>Analyze your first dataset</Button>}
+        />
+      )}
+
+      {data && !loading && !data.is_demo && <DashboardContent data={data} navigate={navigate} />}
+    </div>
+  )
+}
+
+function DashboardContent({ data, navigate }) {
+  const distribution = data.risk_distribution.map((d) => ({
+    band: cap(d.band),
+    count: d.count,
+    color: BAND_COLORS[cap(d.band)],
+  }))
+  const histogram = data.score_histogram.map((b) => ({ bucket: b.bucket, count: b.count }))
+
+  return (
+    <>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          index={0}
-          label="Transactions analyzed"
-          value={formatCompact(s.analyzed)}
-          hint="DataCo research dataset size"
-          icon={BarChart3}
-          tone="amber"
-          to="/transactions"
-          onClick={() => navigate('/transactions')}
-        />
-        <StatCard
-          index={1}
-          label="Requiring review"
-          value={formatCompact(s.requiresReview)}
-          hint="Flagged, awaiting a human decision"
-          icon={AlertTriangle}
-          tone="amber"
-          onClick={() => navigate('/review')}
-        />
-        <StatCard
-          index={2}
-          label="High-risk transactions"
-          value={formatCompact(s.highRisk)}
-          hint="Model score in the Critical band"
-          icon={ShieldAlert}
-          tone="critical"
-          onClick={() => navigate('/transactions?risk=critical')}
-        />
-        <StatCard
-          index={3}
-          label="Reviewed"
-          value={formatCompact(s.reviewed)}
-          hint="Decisions recorded by analysts"
-          icon={CheckCircle2}
-          tone="success"
-          onClick={() => navigate('/review')}
-        />
+        <StatCard index={0} label="Transactions analyzed" value={formatCompact(data.analyzed)}
+          icon={BarChart3} tone="amber" onClick={() => navigate('/transactions')} />
+        <StatCard index={1} label="Requiring review" value={formatCompact(data.requires_review)}
+          hint="Flagged, awaiting a decision" icon={AlertTriangle} tone="amber"
+          onClick={() => navigate('/review')} />
+        <StatCard index={2} label="High-risk" value={formatCompact(data.high_risk)}
+          hint="High + Critical bands" icon={ShieldAlert} tone="critical"
+          onClick={() => navigate('/transactions?risk=critical')} />
+        <StatCard index={3} label="Reviewed" value={formatCompact(data.reviewed)}
+          hint="Decisions recorded" icon={CheckCircle2} tone="success"
+          onClick={() => navigate('/review')} />
       </div>
 
-      {/* Charts */}
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader className="flex-row items-center justify-between">
-            <div>
-              <CardTitle>Risk trend</CardTitle>
-              <CardDescription>Flagged vs. reviewed over recent weeks</CardDescription>
-            </div>
-            <StatusPill tone="demo" />
+          <CardHeader>
+            <CardTitle>Risk-score distribution</CardTitle>
+            <CardDescription>How model scores spread across analyzed orders</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={riskTrend} margin={{ left: -16, right: 8, top: 4 }}>
+              <AreaChart data={histogram} margin={{ left: -16, right: 8, top: 4 }}>
                 <defs>
-                  <linearGradient id="gFlagged" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="gScore" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#F59E0B" stopOpacity={0.35} />
                     <stop offset="100%" stopColor="#F59E0B" stopOpacity={0} />
                   </linearGradient>
-                  <linearGradient id="gReviewed" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#059669" stopOpacity={0.3} />
-                    <stop offset="100%" stopColor="#059669" stopOpacity={0} />
-                  </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E7E5E4" vertical={false} />
-                <XAxis dataKey="date" stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
+                <XAxis dataKey="bucket" stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} />
                 <YAxis stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} />
-                <Tooltip
-                  contentStyle={{
-                    borderRadius: 12,
-                    border: '1px solid #E7E5E4',
-                    fontSize: 12,
-                  }}
-                />
-                <Area type="monotone" dataKey="flagged" stroke="#F59E0B" strokeWidth={2} fill="url(#gFlagged)" name="Flagged" />
-                <Area type="monotone" dataKey="reviewed" stroke="#059669" strokeWidth={2} fill="url(#gReviewed)" name="Reviewed" />
+                <Tooltip contentStyle={{ borderRadius: 12, border: '1px solid #E7E5E4', fontSize: 12 }} />
+                <Area type="monotone" dataKey="count" stroke="#F59E0B" strokeWidth={2} fill="url(#gScore)" name="Orders" />
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
@@ -147,34 +130,24 @@ export default function Dashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Risk distribution</CardTitle>
-            <CardDescription>Transactions by risk band</CardDescription>
+            <CardDescription>Transactions by band</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={riskDistribution} layout="vertical" margin={{ left: 8, right: 16 }}>
+              <BarChart data={distribution} layout="vertical" margin={{ left: 8, right: 16 }}>
                 <XAxis type="number" hide />
-                <YAxis
-                  type="category"
-                  dataKey="band"
-                  stroke="#64748B"
-                  fontSize={12}
-                  tickLine={false}
-                  axisLine={false}
-                  width={64}
-                />
-                <Tooltip
-                  formatter={(v) => [formatCompact(v), 'Transactions']}
-                  contentStyle={{ borderRadius: 12, border: '1px solid #E7E5E4', fontSize: 12 }}
-                />
+                <YAxis type="category" dataKey="band" stroke="#64748B" fontSize={12} tickLine={false} axisLine={false} width={64} />
+                <Tooltip formatter={(v) => [formatCompact(v), 'Transactions']}
+                  contentStyle={{ borderRadius: 12, border: '1px solid #E7E5E4', fontSize: 12 }} />
                 <Bar dataKey="count" radius={[0, 6, 6, 0]}>
-                  {riskDistribution.map((d) => (
+                  {distribution.map((d) => (
                     <Cell key={d.band} fill={d.color} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
             <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-              {riskDistribution.map((d) => (
+              {distribution.map((d) => (
                 <div key={d.band} className="flex items-center gap-2">
                   <span className="size-2.5 rounded-sm" style={{ background: d.color }} />
                   <span className="text-muted-foreground">{d.band}</span>
@@ -186,7 +159,6 @@ export default function Dashboard() {
         </Card>
       </div>
 
-      {/* Lists */}
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader className="flex-row items-center justify-between">
@@ -196,7 +168,12 @@ export default function Dashboard() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-1">
-            {recentTransactions.map((t) => (
+            {data.recent_transactions.length === 0 && (
+              <p className="py-6 text-center text-sm text-muted-foreground">
+                Nothing awaiting review.
+              </p>
+            )}
+            {data.recent_transactions.map((t) => (
               <button
                 key={t.id}
                 onClick={() => navigate(`/transactions/${t.id}`)}
@@ -204,16 +181,17 @@ export default function Dashboard() {
               >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-foreground">
-                    {t.id} · {t.product}
+                    {t.order_id}
+                    {t.product ? ` · ${t.product}` : ''}
                   </p>
                   <p className="truncate text-xs text-muted-foreground">
-                    {t.supplier} · {t.location}
+                    {[t.supplier, t.location].filter(Boolean).join(' · ') || '—'}
                   </p>
                 </div>
                 <span className="hidden text-sm font-medium tabular-nums text-foreground sm:block">
-                  {formatCurrency(t.value)}
+                  {formatCurrency(t.order_value)}
                 </span>
-                <RiskBadge score={t.score} showScore />
+                <RiskBadge score={t.risk_score} showScore />
               </button>
             ))}
           </CardContent>
@@ -225,17 +203,24 @@ export default function Dashboard() {
               <CardTitle>Recent review activity</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {reviewActivity.map((a) => (
-                <div key={a.id} className="flex items-start gap-3 text-sm">
+              {data.recent_reviews.length === 0 && (
+                <p className="text-sm text-muted-foreground">No review decisions yet.</p>
+              )}
+              {data.recent_reviews.map((a, i) => (
+                <button
+                  key={i}
+                  onClick={() => navigate(`/transactions/${a.transaction_id}`)}
+                  className="flex w-full items-start gap-3 text-left text-sm"
+                >
                   <span className="mt-1 size-1.5 shrink-0 rounded-full bg-amber" />
-                  <div>
-                    <p className="text-foreground">
-                      <span className="font-medium">{a.actor}</span> {a.action.toLowerCase()}{' '}
-                      <span className="font-medium">{a.target}</span>
+                  <div className="min-w-0">
+                    <p className="truncate text-foreground">
+                      <span className="font-medium">{a.actor_name || 'Someone'}</span>{' '}
+                      {a.decision.replace(/_/g, ' ')} <span className="font-medium">{a.order_id}</span>
                     </p>
-                    <p className="text-xs text-muted-foreground">{a.when}</p>
+                    <p className="text-xs text-muted-foreground">{formatDate(a.created_at, { hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
-                </div>
+                </button>
               ))}
             </CardContent>
           </Card>
@@ -246,23 +231,22 @@ export default function Dashboard() {
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <StatusRow icon={Brain} label="Model">
-                <Badge variant="warning">Not trained yet</Badge>
-              </StatusRow>
-              <StatusRow icon={BarChart3} label="Data freshness">
-                <span className="text-muted-foreground">No analysis run</span>
+                <Badge variant={data.model_status === 'active' ? 'success' : 'warning'}>
+                  {data.model_status === 'active' ? 'Active' : 'Not trained'}
+                </Badge>
               </StatusRow>
               <StatusRow icon={Link2Off} label="Blockchain">
                 <StatusPill tone="unavailable">Dev mode</StatusPill>
               </StatusRow>
               <p className="pt-1 text-xs text-muted-foreground">
-                Suspected-fraud rate (research): {formatPercent(s.suspectedFraudRate, 2)}. This is
-                dataset context, not a validated model metric.
+                Suspected-fraud rate (research): {formatPercent(data.suspected_fraud_rate, 2)} — dataset
+                context, not a validated model metric.
               </p>
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -273,6 +257,29 @@ function StatusRow({ icon: Icon, label, children }) {
         <Icon className="size-4" /> {label}
       </span>
       {children}
+    </div>
+  )
+}
+
+function cap(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function DashboardSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Card key={i} className="p-5">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="mt-3 h-8 w-16" />
+          </Card>
+        ))}
+      </div>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+        <Card className="h-72 lg:col-span-2" />
+        <Card className="h-72" />
+      </div>
     </div>
   )
 }

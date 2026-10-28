@@ -22,7 +22,8 @@ Status legend: ✅ implemented (Phase 2) · ⏳ planned.
 | ✅ | GET | `/transactions` | List (search `q`, filter `risk`/`review_status`, paginate), sorted by risk |
 | ✅ | GET | `/transactions/{id}` | Transaction detail incl. stored features |
 | ✅ | GET | `/transactions/{id}/explanation` | SHAP local explanation (lazy, from stored features) |
-| ⏳ | POST | `/transactions/{id}/reviews` | Record a review decision — Phase 4 |
+| ✅ | GET | `/transactions/{id}/reviews` | Review case + preserved decision history |
+| ✅ | POST | `/transactions/{id}/reviews` | Record a decision (reason required to escalate/confirm) |
 | ⏳ | GET | `/audit-events` | List audit events — Phase 5 |
 | ⏳ | GET | `/audit-events/{event_id}/verify` | Verify against the ledger — Phase 5 |
 | ⏳ | GET | `/reports` | Report data for export — Phase 6 |

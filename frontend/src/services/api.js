@@ -98,6 +98,11 @@ export const api = {
   getTransaction: (id) => request(`/transactions/${id}`),
   getExplanation: (id) => request(`/transactions/${id}/explanation`),
 
+  // Reviews
+  getReviews: (id) => request(`/transactions/${id}/reviews`),
+  createReview: (id, payload) =>
+    request(`/transactions/${id}/reviews`, { method: 'POST', body: payload }),
+
   // Model card
   modelCard: () => request('/model'),
 }

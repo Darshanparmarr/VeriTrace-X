@@ -7,12 +7,14 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.deps import get_current_user
+from app.core.deps import get_current_user, require_roles
 from app.ml.predictor import predictor
 from app.models.transaction import RiskBand, ReviewStatus, Transaction
-from app.models.user import User
+from app.models.user import Role, User
 from app.schemas.analysis import ExplanationOut, TransactionDetail, TransactionOut
 from app.schemas.common import Page
+from app.schemas.review import ReviewCaseOut, ReviewDecisionCreate, ReviewDecisionOut
+from app.services import review_service
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
 
@@ -112,3 +114,42 @@ def get_explanation(
         summary=result.get("summary", []),
         note=_EXPLAIN_NOTE,
     )
+
+
+def _case_out(db: Session, transaction_id: int, case) -> ReviewCaseOut:
+    history = review_service.decisions_with_actors(db, case) if case else []
+    return ReviewCaseOut(
+        transaction_id=transaction_id,
+        status=case.status if case else ReviewStatus.new,
+        decisions=[ReviewDecisionOut(**d) for d in history],
+    )
+
+
+@router.get("/{transaction_id}/reviews", response_model=ReviewCaseOut)
+def get_reviews(
+    transaction_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> ReviewCaseOut:
+    tx = db.get(Transaction, transaction_id)
+    if tx is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
+    case = review_service.get_case(db, transaction_id)
+    return _case_out(db, transaction_id, case)
+
+
+@router.post("/{transaction_id}/reviews", response_model=ReviewCaseOut, status_code=status.HTTP_201_CREATED)
+def create_review(
+    transaction_id: int,
+    body: ReviewDecisionCreate,
+    db: Session = Depends(get_db),
+    # Viewers cannot record decisions; analysts/reviewers/admins can.
+    user: User = Depends(require_roles(Role.analyst, Role.reviewer, Role.admin)),
+) -> ReviewCaseOut:
+    tx = db.get(Transaction, transaction_id)
+    if tx is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
+    case = review_service.record_decision(
+        db, tx, user, body.decision, body.reason, body.evidence_ref
+    )
+    return _case_out(db, transaction_id, case)
