@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.Python
+
+# Build output
+dist/
+build/
+*.egg-info/
+.vite/
+
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# ML artifacts (large binaries) — keep structure, ignore weights/data
+ml/artifacts/*.pkl
+ml/artifacts/*.joblib
+ml/artifacts/*.json.gz
+ml/data/raw/*
+ml/data/processed/*
+!ml/data/raw/.gitkeep
+!ml/data/processed/.gitkeep
+!ml/artifacts/.gitkeep
+
+# Blockchain generated material
+blockchain/network/crypto-config/
+blockchain/network/channel-artifacts/
+blockchain/wallet/
+
+# Logs & OS
+*.log
+logs/
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Test / coverage
+coverage/
+.coverage
+htmlcov/
+.pytest_cache/
+playwright-report/
+test-results/

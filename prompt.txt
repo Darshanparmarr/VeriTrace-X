@@ -1,0 +1,597 @@
+# MASTER BUILD PROMPT — VeriTrace-X
+
+## 1. Your Role
+
+Act as a senior full-stack engineer, AI/ML engineer, UI/UX designer, software architect, and DevOps engineer.
+
+Build **VeriTrace-X**, a complete, modern, production-minded web application for explainable AI-based supply-chain fraud detection and blockchain-based traceability.
+
+Do not create only a landing page, static dashboard, or frontend prototype. Build a functional end-to-end application with a real backend, machine-learning pipeline, explainability, database integration, audit trail, testing, and deployment configuration.
+
+Work incrementally, inspect the existing repository before making changes, and ensure that every implemented feature works.
+
+## 2. Product Vision
+
+VeriTrace-X helps users identify suspicious supply-chain transactions, understand why an order was flagged, investigate potential fraud, and verify the integrity of its audit history.
+
+The product combines:
+
+- Machine learning for fraud-risk prediction.
+- Explainable AI using SHAP and LIME.
+- Blockchain-based, tamper-evident audit records.
+- Interactive analytics and transaction investigation.
+- Human review and decision tracking.
+
+The primary principle is:
+
+**Complex technology. Simple experience.**
+
+A user without any knowledge of AI or blockchain must be able to upload data, analyze transactions, understand risk alerts, review suspicious orders, and verify audit records without needing technical assistance.
+
+## 3. Research Alignment
+
+Build the application around the research concept:
+
+“An Explainable AI Framework for Blockchain-Based Fraud Detection in Supply Chain Traceability.”
+
+Use the DataCo Smart Supply Chain dataset when available, including the research dataset's approximately 180,519 order-line records and the report's approximately 2.25% suspected-fraud figure as research context, not as guaranteed model performance.
+
+Preserve the distinction between suspected fraud, model predictions, and confirmed fraud.
+
+The system must not claim that the model has been validated in production unless actual evaluation results support that claim.
+
+Implement a reproducible training and evaluation pipeline. Compare suitable algorithms, such as Logistic Regression, Random Forest, and XGBoost where appropriate. Select the final model based on measured validation performance, data leakage checks, class imbalance handling, and suitable fraud-detection metrics.
+
+Evaluate precision, recall, F1-score, confusion matrix, ROC-AUC, and PR-AUC where applicable. Clearly document the evaluation methodology and limitations.
+
+## 4. Technology Stack — Free and Open Source First
+
+Use the following preferred stack:
+
+### Frontend
+- React with Vite.
+- JavaScript and JSX.
+- Tailwind CSS.
+- shadcn/ui for accessible interface components.
+- Lucide React for icons.
+- Motion for React (`motion`) for interface animations.
+- GSAP and ScrollTrigger for advanced landing-page and scroll-based animations.
+- Recharts for charts and analytics.
+- React Router for navigation.
+- React Hook Form and Zod for forms and validation.
+
+### Backend
+- Python with FastAPI.
+- Pydantic for request and response validation.
+- Pandas and NumPy for data processing.
+- Scikit-learn and XGBoost for machine learning.
+- SHAP and LIME for model explanations.
+- SQLAlchemy and Alembic for database access and migrations.
+
+### Database and blockchain
+- PostgreSQL for users, transactions, prediction results, review decisions, and audit metadata.
+- Hyperledger Fabric for genuine permissioned blockchain integration, including chaincode and transaction verification.
+- A local development network for initial blockchain development.
+
+Never represent a PostgreSQL record or a locally generated hash as a real blockchain transaction.
+
+If blockchain infrastructure is not yet configured, provide an explicit development mode and clearly label the blockchain integration as unavailable. Do not falsely display a successful on-chain verification.
+
+### Testing and development
+- Pytest for backend and ML tests.
+- Vitest and React Testing Library for frontend tests.
+- Playwright for essential end-to-end tests.
+- Git and GitHub for version control.
+- Docker and Docker Compose for reproducible local development where practical.
+
+Prefer permissively licensed, open-source dependencies. Verify the current license and deployment terms of every major dependency, dataset, pretrained model, and visual asset before use.
+
+Avoid paid AI APIs, paid UI kits, paid icon libraries, and paid database dependencies.
+
+The core fraud-detection system must work without an LLM. Do not make paid AI services necessary for the application to function.
+
+## 5. UI/UX Design System
+
+Create a distinctive, polished, award-quality SaaS interface.
+
+The design should be clean, elegant, intuitive, responsive, and visually memorable. Take inspiration from premium enterprise dashboards and modern product websites without copying any specific website.
+
+### Color palette: Clean Amber Intelligence
+
+Use this palette consistently:
+
+- Main background: `#FFFBF5`
+- Card background: `#FFFFFF`
+- Light amber surface: `#FEF3C7`
+- Soft gold: `#FCD34D`
+- Primary amber: `#F59E0B`
+- Deep amber: `#D97706`
+- Dark brown: `#92400E`
+- Primary text: `#1F2937`
+- Secondary text: `#64748B`
+- Border: `#E7E5E4`
+- Success: `#059669`
+- Critical risk: `#DC2626`
+
+Do not use blue as a primary, accent, gradient, navigation, or button color. Use amber and its shades as the product's primary visual identity.
+
+Green and red may be used for meaningful success and critical-risk statuses. Maintain sufficient contrast and never rely on color alone to communicate risk.
+
+### Typography and layout
+
+- Use Inter or another appropriately licensed, readable sans-serif font.
+- Use consistent spacing and a clear visual hierarchy.
+- Use approximately 12–16px card corner radii.
+- Use subtle borders and shadows instead of excessive glassmorphism.
+- Keep the sidebar compact and navigation labels understandable.
+- Make tables readable and responsive.
+- Use concise headings, descriptive labels, and clear calls to action.
+- Avoid unnecessary gradients, decorative charts, oversized cards, and excessive whitespace.
+
+### Animations
+
+Use Motion for React for:
+- Page transitions.
+- Modal and drawer transitions.
+- Card entrances.
+- Tab transitions.
+- Notifications and tooltips.
+- Subtle hover and focus feedback.
+
+Use GSAP for:
+- Landing-page hero animations.
+- Scroll-triggered storytelling.
+- Supply-chain journey animations.
+- Carefully designed SVG blockchain visualizations.
+
+Do not let multiple animation libraries control the same element. Keep animations subtle, purposeful, and performant. Support reduced-motion preferences and avoid delaying important user actions.
+
+### Open-source graphics
+
+Use Lucide icons, custom SVG diagrams, and appropriately licensed free illustrations.
+
+Keep most dashboard visuals functional rather than decorative. Prefer actual transaction analytics, shipment timelines, explainability charts, and blockchain verification diagrams.
+
+## 6. Main Application Pages
+
+Implement the following pages with functional navigation and consistent design.
+
+### A. Landing page
+
+Create a polished public-facing landing page containing:
+
+- VeriTrace-X logo and navigation.
+- Hero headline: “Trust Every Transaction. Explain Every Risk.”
+- Supporting description of AI-powered supply-chain fraud detection.
+- Primary CTA: “Explore Dashboard.”
+- Secondary CTA: “How It Works.”
+- Animated supply-chain visualization.
+- Three feature sections: Fraud Detection, Explainable AI, and Blockchain Traceability.
+- A simple workflow explanation.
+- Technology and research information.
+- Footer with GitHub, documentation, and project information.
+
+Do not invent customer logos, testimonials, production statistics, certifications, or performance claims.
+
+### B. Dashboard
+
+Display a concise overview with:
+
+- Transactions analyzed.
+- Transactions requiring review.
+- High-risk transactions.
+- Reviewed transactions.
+- Risk distribution.
+- Risk trends over time.
+- Recent suspicious transactions.
+- Recent review activity.
+- Model status and data freshness.
+- Blockchain service status.
+
+Make cards clickable when doing so leads to a relevant filtered view.
+
+Never use hardcoded sample figures as live production statistics. Seeded demo data must be explicitly identified as demo data.
+
+### C. Analyze Data
+
+Create a simple upload workflow:
+
+1. Upload a CSV or Excel file.
+2. Preview the data.
+3. Validate required columns and data types.
+4. Display missing values, invalid records, duplicates, and warnings.
+5. Explain how mapping can resolve column-name differences.
+6. Let users correct mapping issues.
+7. Allow the user to run analysis.
+8. Show real progress and processing status.
+9. Display a summary and provide a downloadable results file.
+
+Include a downloadable sample template and example dataset.
+
+Never silently discard invalid rows or overwrite original data.
+
+Provide actionable validation errors in plain English.
+
+Protect against oversized files, malformed CSVs, spreadsheet formula injection in exports, and unsafe uploaded content.
+
+### D. Transactions
+
+Build a searchable, filterable transaction table with:
+
+- Order ID.
+- Supplier.
+- Product.
+- Location.
+- Order value.
+- Risk score.
+- Risk category.
+- Review status.
+- Analysis timestamp.
+- Actions.
+
+Provide sorting, pagination, and filters for risk category, supplier, date, and review status.
+
+Use readable risk labels such as Low, Medium, High, and Critical. Document the thresholds and make them configurable.
+
+### E. Transaction Details and Investigation
+
+Design a particularly polished, easy-to-understand transaction details page.
+
+Use order `VX-1024` as an illustrative UI example only. Do not claim its risk score or findings are real unless they are generated from actual model output.
+
+Display:
+
+1. Order summary.
+2. Supplier and shipment information.
+3. Risk score and risk category.
+4. A plain-English explanation of why the model flagged the order.
+5. Important factors that influenced the prediction.
+6. SHAP-based feature contributions when available.
+7. Optional LIME explanation when appropriate.
+8. Relevant transaction data.
+9. Shipment timeline.
+10. Blockchain audit information when the integration is active.
+11. Review history.
+12. Human review controls.
+
+Use an explanation structure such as:
+
+“Why was this order flagged?”
+
+- The order value is unusually high compared with comparable orders.
+- The supplier has limited historical transaction data.
+- Some product details do not match the expected pattern.
+
+These must be example explanations, not hardcoded factual findings. In the real application, generate explanations from actual data and model output. If a factor is unavailable, omit it or clearly label it as unavailable.
+
+For the risk score:
+- Display the actual model output.
+- Explain what the score represents.
+- Do not call an uncalibrated model probability a confirmed probability of fraud.
+- Show an unavailable state if prediction fails.
+- Distinguish model confidence from fraud risk.
+
+Use a visual risk indicator, but make the number, label, and explanation readable without relying on color.
+
+### F. Human Review Workflow
+
+Provide a clear workflow:
+
+- New.
+- Under Review.
+- Legitimate / No Issue Found.
+- Escalated.
+- Confirmed Fraud, where supported by human investigation and evidence.
+
+Allow authorized users to:
+- Open a case.
+- Record a decision.
+- Add notes and supporting evidence references.
+- Escalate a case.
+- View previous decisions.
+- See who performed each action and when.
+
+Require a reason when making consequential decisions. Use role-based permissions and preserve the review history.
+
+A model prediction must never automatically establish confirmed fraud. The user must be able to disagree with the model.
+
+### G. Explainable AI
+
+Provide a dedicated page explaining model behavior.
+
+Include:
+- Global feature importance.
+- Local explanations for an individual transaction.
+- SHAP summary plots where suitable.
+- Feature contribution charts.
+- Model evaluation metrics.
+- Model version and training timestamp.
+- Data limitations and known biases.
+
+Translate technical terms into plain English, with an expandable technical details section.
+
+Clearly distinguish correlation or model contribution from causal proof.
+
+### H. Supply Chain Traceability
+
+Display:
+- Order origin.
+- Supplier information.
+- Shipment milestones.
+- Current shipment status.
+- Location and timestamp history.
+- Related transactions.
+- Relevant audit events.
+
+Provide an intuitive shipment timeline and, when meaningful, a simple map.
+
+Do not invent geographic positions or shipment events when the underlying data does not contain them.
+
+### I. Blockchain Audit Trail
+
+Integrate Hyperledger Fabric when the required network is available.
+
+Record suitable audit events such as:
+- Analysis completed.
+- Review decision recorded.
+- Case escalated.
+- Audit event verified.
+
+Store only necessary audit information on-chain. Keep sensitive personal information and confidential transaction data off-chain where possible. Use hashes or references to establish integrity without unnecessarily exposing private data.
+
+Display:
+- Transaction ID.
+- Block information where available.
+- Timestamp.
+- Record integrity status.
+- Verification result.
+
+Allow a user to verify a record against the real blockchain network.
+
+Include clear states for Verified, Verification Failed, and Blockchain Unavailable.
+
+### J. Reports and Settings
+
+Reports:
+- Fraud-risk summary.
+- Review outcomes.
+- Model performance.
+- Transaction-level results.
+- CSV export and printable reports.
+
+Settings:
+- User profile.
+- Roles and permissions.
+- Configurable review thresholds.
+- Model configuration and version.
+- Dataset and processing settings.
+- Audit history.
+
+## 7. Machine-Learning Pipeline
+
+Implement a complete reproducible ML workflow.
+
+1. Inspect and document the dataset schema.
+2. Identify the target label and confirm its meaning.
+3. Validate and preprocess data.
+4. Handle missing values and duplicates appropriately.
+5. Prevent data leakage.
+6. Split data into training and evaluation sets using a suitable strategy.
+7. Handle class imbalance using justified techniques.
+8. Train and compare candidate models.
+9. Evaluate the models using appropriate metrics.
+10. Select the model based on measured performance and the intended operational use.
+11. Save the trained model and preprocessing pipeline.
+12. Expose a prediction API.
+13. Generate SHAP and LIME explanations.
+14. Record model version, prediction timestamp, and relevant evaluation information.
+
+Do not assume that a dataset column represents confirmed fraud without inspecting its definition.
+
+Do not promise a specific accuracy level before measuring it.
+
+Use a versioned, reproducible training process. Avoid retraining the model for every API request.
+
+## 8. Backend APIs
+
+Design documented REST endpoints, including:
+
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `GET /api/v1/dashboard/summary`
+- `POST /api/v1/datasets/upload`
+- `GET /api/v1/datasets/{dataset_id}`
+- `POST /api/v1/analyses`
+- `GET /api/v1/analyses/{analysis_id}`
+- `GET /api/v1/transactions`
+- `GET /api/v1/transactions/{transaction_id}`
+- `GET /api/v1/transactions/{transaction_id}/explanation`
+- `POST /api/v1/transactions/{transaction_id}/reviews`
+- `GET /api/v1/audit-events`
+- `GET /api/v1/audit-events/{event_id}/verify`
+- `GET /api/v1/reports`
+
+Adjust the endpoint design as needed, but keep it consistent, secure, documented, and versioned.
+
+Use asynchronous processing or background jobs when dataset analysis takes longer than a normal HTTP request. Return job status and progress to the frontend.
+
+Implement consistent error responses, input validation, authentication, authorization, logging, and rate limiting where appropriate.
+
+Never expose secrets, stack traces, or sensitive uploaded data in public API responses.
+
+## 9. Database and Security
+
+Create normalized database models and migrations for:
+
+- Users.
+- Roles and permissions.
+- Datasets.
+- Analysis jobs.
+- Transactions.
+- Predictions.
+- Model versions.
+- Explanation results.
+- Review cases.
+- Review decisions.
+- Audit events.
+- Blockchain references.
+
+Use environment variables for secrets and configuration.
+
+Implement password hashing, protected endpoints, authorization checks, secure CORS configuration, and safe file handling.
+
+Use synthetic or public demonstration data for the public demo. Never publish private uploaded datasets, credentials, or sensitive personal information.
+
+Document data retention and deletion behavior.
+
+## 10. Performance and Accessibility
+
+The application must:
+
+- Work on desktop, tablet, and mobile.
+- Load essential dashboard content quickly.
+- Use pagination and efficient database queries.
+- Avoid loading large datasets directly into browser memory.
+- Use lazy loading where appropriate.
+- Display loading skeletons and clear error states.
+- Support keyboard navigation and visible focus indicators.
+- Use accessible labels and appropriate contrast.
+- Respect reduced-motion settings.
+- Avoid animation that blocks interaction.
+
+Prioritize a fast, understandable interface over visual effects.
+
+## 11. Free and Live Deployment
+
+Make the project deployable using free tiers wherever practical.
+
+Suggested approach:
+- Frontend: Vercel or another suitable static frontend host.
+- FastAPI backend: a suitable free-tier Python hosting provider.
+- Database: a free-tier managed PostgreSQL provider.
+- Source code: a public GitHub repository.
+- Blockchain: a local Fabric development network initially, followed by a documented hosting strategy.
+
+Confirm the current free-tier limits, service availability, and required account setup before deployment.
+
+Do not assume that every component can run continuously for free. A public blockchain network, always-on backend, or heavy ML workload may require resources beyond free-tier allowances.
+
+Provide:
+- `.env.example`.
+- `.gitignore`.
+- Frontend and backend Dockerfiles where appropriate.
+- `docker-compose.yml` for local development.
+- Database migrations.
+- ML training and inference instructions.
+- Dataset setup instructions.
+- Blockchain setup and verification instructions.
+- Deployment configuration.
+- GitHub Actions for appropriate automated tests.
+
+The live demo must clearly distinguish demo mode from production mode. Never fake successful blockchain verification or ML predictions to make the interface appear functional.
+
+## 12. Required Project Structure
+
+Use a clean structure similar to:
+
+`frontend/`
+- `src/components/`
+- `src/pages/`
+- `src/layouts/`
+- `src/features/`
+- `src/hooks/`
+- `src/services/`
+- `src/lib/`
+- `src/styles/`
+
+`backend/`
+- `app/api/`
+- `app/core/`
+- `app/models/`
+- `app/schemas/`
+- `app/services/`
+- `app/repositories/`
+- `app/ml/`
+- `app/blockchain/`
+- `app/workers/`
+- `tests/`
+
+`ml/`
+- `data/`
+- `notebooks/`
+- `training/`
+- `evaluation/`
+- `artifacts/`
+
+`blockchain/`
+- `network/`
+- `chaincode/`
+- `scripts/`
+
+`docs/`
+- `architecture.md`
+- `setup.md`
+- `api.md`
+- `model-evaluation.md`
+- `deployment.md`
+- `security.md`
+
+Adapt the structure to keep the application maintainable without unnecessary complexity.
+
+## 13. Development Rules
+
+- First inspect the existing repository, files, dependencies, and current implementation.
+- If the repository already contains code, improve it instead of replacing working functionality unnecessarily.
+- If starting from scratch, establish the project structure and implement it in manageable stages.
+- Write working code, not just descriptions or pseudocode.
+- Do not leave important features as non-functional placeholders.
+- Never claim a feature is implemented until its functionality has been tested.
+- Use reusable components and consistent naming.
+- Keep the UI visually consistent across all pages.
+- Avoid unnecessary dependencies and paid services.
+- Explain significant architectural decisions briefly.
+- Run tests, fix errors, and verify the build after each major phase.
+- Do not expose environment secrets or commit large datasets unnecessarily.
+- If an external service or account is needed, provide exact setup instructions rather than pretending it is configured.
+
+## 14. Acceptance Criteria
+
+The product is ready for its first public demonstration when:
+
+1. A user can register or sign in securely.
+2. A user can upload and validate a supported dataset.
+3. A user can run real predictions using the saved ML model.
+4. Results display risk scores and categories derived from actual model outputs.
+5. The transaction details page explains available model findings in plain English.
+6. SHAP/LIME explanations are generated when supported by the model and data.
+7. A reviewer can record a decision and supporting notes.
+8. The review history is preserved.
+9. Blockchain records can be verified against an actual configured blockchain network.
+10. The dashboard uses real stored results or clearly labeled demo data.
+11. The application handles loading, empty, success, failure, and unavailable states.
+12. Automated tests cover important backend, frontend, ML, and review workflows.
+13. The frontend and backend can be deployed using documented instructions.
+14. The public demo does not expose credentials or private data.
+15. The UI is responsive, accessible, smooth, and consistent with the Clean Amber Intelligence design system.
+
+## 15. Execution Order
+
+Implement the project in this order:
+
+Phase 1: Repository inspection, architecture, UI design system, navigation, and reusable components.
+
+Phase 2: Database schema, FastAPI backend, authentication, and dataset upload/validation.
+
+Phase 3: ML training, evaluation, prediction API, and SHAP/LIME explanations.
+
+Phase 4: Dashboard, transactions table, transaction details, and human review workflow.
+
+Phase 5: Supply-chain traceability and real Hyperledger Fabric integration.
+
+Phase 6: Reports, security hardening, automated testing, and performance improvements.
+
+Phase 7: Live deployment, environment configuration, documentation, and public demo verification.
+
+Begin with Phase 1. After completing each phase, run the relevant tests and summarize what works, what remains, and any configuration required from me. Do not attempt to implement the entire system as one enormous, unverified code dump.
+
+**Final objective:** deliver a real, maintainable, open-source-first VeriTrace-X product with a beautiful amber-themed UI, a simple user journey, explainable machine-learning predictions, human investigation workflows, and verifiable blockchain-based audit records.

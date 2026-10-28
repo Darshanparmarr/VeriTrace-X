@@ -1,0 +1,92 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────────────────────
+   Clean Amber Intelligence — design tokens
+   Values are space-separated RGB channels so Tailwind's
+   `rgb(var(--x) / <alpha-value>)` opacity syntax works.
+   ───────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --bg: 255 251 245;        /* #FFFBF5 main background */
+    --surface: 254 243 199;   /* #FEF3C7 light amber surface */
+    --card: 255 255 255;      /* #FFFFFF card background */
+    --border: 231 229 228;    /* #E7E5E4 border */
+    --ring: 245 158 11;       /* #F59E0B focus ring (amber) */
+    --fg: 31 41 55;           /* #1F2937 primary text */
+    --muted: 248 246 242;     /* subtle fill */
+    --muted-fg: 100 116 139;  /* #64748B secondary text */
+  }
+
+  * {
+    border-color: rgb(var(--border));
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: 'cv11', 'ss01';
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Visible, accessible focus for keyboard users */
+  :focus-visible {
+    outline: 2px solid rgb(var(--ring));
+    outline-offset: 2px;
+  }
+
+  /* Respect reduced-motion: disable non-essential animation */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Loading skeleton shimmer */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-border/60;
+  }
+  .skeleton::after {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.6) 50%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer 1.6s infinite;
+  }
+
+  /* Thin custom scrollbar */
+  .scroll-amber::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .scroll-amber::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-border;
+  }
+  .scroll-amber::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/40;
+  }
+}
+
+/* Decorative amber grid used on marketing surfaces */
+.bg-amber-grid {
+  background-image:
+    linear-gradient(rgba(245, 158, 11, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 158, 11, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
