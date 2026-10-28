@@ -16,11 +16,12 @@ Status legend: ✅ implemented (Phase 2) · ⏳ planned.
 | ✅ | GET | `/datasets/sample/template` | Download a fill-in CSV template |
 | ✅ | GET | `/datasets/sample/example` | Download a synthetic example dataset |
 | ✅ | GET | `/dashboard/summary` | KPI + status overview (real counts; `is_demo` when empty) |
-| ⏳ | POST | `/analyses` | Start an analysis job (async) — Phase 3 |
-| ⏳ | GET | `/analyses/{analysis_id}` | Job status + progress + summary — Phase 3 |
-| ⏳ | GET | `/transactions` | List (search, filter, sort, paginate) — Phase 4 |
-| ⏳ | GET | `/transactions/{id}` | Transaction detail — Phase 4 |
-| ⏳ | GET | `/transactions/{id}/explanation` | SHAP/LIME explanation — Phase 3/4 |
+| ✅ | GET | `/model` | Model card: algorithm, version, metrics, global SHAP importance, limitations |
+| ✅ | POST | `/analyses` | Score a dataset with the model; persists transactions + summary |
+| ✅ | GET | `/analyses/{analysis_id}` | Job status + progress + summary |
+| ✅ | GET | `/transactions` | List (search `q`, filter `risk`/`review_status`, paginate), sorted by risk |
+| ✅ | GET | `/transactions/{id}` | Transaction detail incl. stored features |
+| ✅ | GET | `/transactions/{id}/explanation` | SHAP local explanation (lazy, from stored features) |
 | ⏳ | POST | `/transactions/{id}/reviews` | Record a review decision — Phase 4 |
 | ⏳ | GET | `/audit-events` | List audit events — Phase 5 |
 | ⏳ | GET | `/audit-events/{event_id}/verify` | Verify against the ledger — Phase 5 |

@@ -1,0 +1,10 @@
+# ML training/evaluation dependencies (Python 3.11+; versions have 3.13 wheels).
+# The backend venv already includes these; this file lets you train in a standalone env.
+pandas==2.2.3
+numpy==2.1.3
+scikit-learn==1.9.1
+xgboost==2.1.3
+shap==0.54.1
+lime==0.2.0.1
+joblib==1.6.0
+openpyxl==3.1.5

@@ -83,4 +83,21 @@ export const api = {
   sampleExampleUrl: `${API_PREFIX}/datasets/sample/example`,
 
   dashboardSummary: () => request('/dashboard/summary'),
+
+  // Analyses
+  createAnalysis: (datasetId) => request('/analyses', { method: 'POST', body: { dataset_id: datasetId } }),
+  getAnalysis: (id) => request(`/analyses/${id}`),
+
+  // Transactions
+  listTransactions: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v != null && v !== ''),
+    ).toString()
+    return request(`/transactions${qs ? `?${qs}` : ''}`)
+  },
+  getTransaction: (id) => request(`/transactions/${id}`),
+  getExplanation: (id) => request(`/transactions/${id}/explanation`),
+
+  // Model card
+  modelCard: () => request('/model'),
 }

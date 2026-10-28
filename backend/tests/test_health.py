@@ -9,7 +9,8 @@ def test_health(client):
     assert body["status"] == "ok"
     # Blockchain is honestly unavailable in dev mode.
     assert body["blockchain"]["status"] == "unavailable"
-    assert body["model_status"] == "not_trained"
+    # Model status depends on whether an artifact has been trained in this env.
+    assert body["model_status"] in ("not_trained", "active")
 
 
 def test_dashboard_summary_empty_is_demo(client, auth_headers):

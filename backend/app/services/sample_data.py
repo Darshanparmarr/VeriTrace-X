@@ -12,6 +12,7 @@ from app.core.safe_export import to_csv
 # Column headers match the DataCo source names so mapping resolves cleanly.
 HEADERS = [
     "Order Id",
+    "Type",
     "order date (DateOrders)",
     "Product Name",
     "Category Name",
@@ -42,10 +43,14 @@ def generate_rows(n: int = 50, seed: int = 42) -> list[dict]:
         sched = rng.randint(1, 6)
         real = max(1, sched + rng.randint(-1, 4))
         # ~2% of synthetic rows carry the suspected-fraud marker (illustrative only).
-        status = "SUSPECTED_FRAUD" if rng.random() < 0.02 else rng.choice(_STATUSES)
+        is_fraud = rng.random() < 0.02
+        status = "SUSPECTED_FRAUD" if is_fraud else rng.choice(_STATUSES)
+        # Mirror DataCo: suspected fraud only on TRANSFER payments.
+        payment_type = "TRANSFER" if is_fraud else rng.choice(["CASH", "DEBIT", "PAYMENT", "TRANSFER"])
         rows.append(
             {
                 "Order Id": f"VX-{1000 + i}",
+                "Type": payment_type,
                 "order date (DateOrders)": f"2024-{rng.randint(1,12):02d}-{rng.randint(1,28):02d}",
                 "Product Name": rng.choice(_PRODUCTS),
                 "Category Name": rng.choice(_CATEGORIES),

@@ -1,0 +1,249 @@
+{
+  "name": "VeriTrace-X fraud risk",
+  "algorithm": "Random Forest",
+  "model_key": "random_forest",
+  "version": "random_forest-dataco-202610280820",
+  "trained_at": "2026-10-28T08:20:30.611031+00:00",
+  "data_source": "dataco",
+  "is_synthetic": false,
+  "n_train": 153441,
+  "n_test": 27078,
+  "class_balance": {
+    "positives": 4062,
+    "total": 180519,
+    "positive_rate": 0.02250178651554684
+  },
+  "threshold_default": 0.5,
+  "risk_band_thresholds": {
+    "low": 0.25,
+    "medium": 0.5,
+    "high": 0.75
+  },
+  "metrics": {
+    "selected": {
+      "validation": {
+        "threshold": 0.5,
+        "precision": 0.08198707592891762,
+        "recall": 0.9983606557377049,
+        "f1": 0.15153023140084598,
+        "roc_auc": 0.8875635781655299,
+        "pr_auc": 0.10400578810453225,
+        "confusion_matrix": {
+          "tn": 19649,
+          "fp": 6819,
+          "fn": 1,
+          "tp": 609
+        },
+        "support": {
+          "positives": 610,
+          "total": 27078
+        }
+      },
+      "test": {
+        "threshold": 0.5,
+        "precision": 0.08254140646212327,
+        "recall": 0.9983579638752053,
+        "f1": 0.15247648902821317,
+        "roc_auc": 0.8899904656567298,
+        "pr_auc": 0.1081480724982336,
+        "confusion_matrix": {
+          "tn": 19711,
+          "fp": 6758,
+          "fn": 1,
+          "tp": 608
+        },
+        "support": {
+          "positives": 609,
+          "total": 27078
+        }
+      }
+    },
+    "all_models": {
+      "logistic_regression": {
+        "validation": {
+          "threshold": 0.5,
+          "precision": 0.08165997322623829,
+          "recall": 1.0,
+          "f1": 0.15099009900990099,
+          "roc_auc": 0.8788528739932167,
+          "pr_auc": 0.09616860034611432,
+          "confusion_matrix": {
+            "tn": 19608,
+            "fp": 6860,
+            "fn": 0,
+            "tp": 610
+          },
+          "support": {
+            "positives": 610,
+            "total": 27078
+          }
+        }
+      },
+      "random_forest": {
+        "validation": {
+          "threshold": 0.5,
+          "precision": 0.08198707592891762,
+          "recall": 0.9983606557377049,
+          "f1": 0.15153023140084598,
+          "roc_auc": 0.8875635781655299,
+          "pr_auc": 0.10400578810453225,
+          "confusion_matrix": {
+            "tn": 19649,
+            "fp": 6819,
+            "fn": 1,
+            "tp": 609
+          },
+          "support": {
+            "positives": 610,
+            "total": 27078
+          }
+        },
+        "test": {
+          "threshold": 0.5,
+          "precision": 0.08254140646212327,
+          "recall": 0.9983579638752053,
+          "f1": 0.15247648902821317,
+          "roc_auc": 0.8899904656567298,
+          "pr_auc": 0.1081480724982336,
+          "confusion_matrix": {
+            "tn": 19711,
+            "fp": 6758,
+            "fn": 1,
+            "tp": 608
+          },
+          "support": {
+            "positives": 609,
+            "total": 27078
+          }
+        }
+      },
+      "xgboost": {
+        "validation": {
+          "threshold": 0.5,
+          "precision": 0.08903773893154714,
+          "recall": 0.8934426229508197,
+          "f1": 0.1619373050066855,
+          "roc_auc": 0.888821670213583,
+          "pr_auc": 0.09966414383838698,
+          "confusion_matrix": {
+            "tn": 20892,
+            "fp": 5576,
+            "fn": 65,
+            "tp": 545
+          },
+          "support": {
+            "positives": 610,
+            "total": 27078
+          }
+        }
+      }
+    }
+  },
+  "shap_method": "shap_tree",
+  "global_importance": [
+    {
+      "feature": "payment_type",
+      "label": "Payment type",
+      "importance": 0.44428
+    },
+    {
+      "feature": "order_region",
+      "label": "Order region",
+      "importance": 0.01574
+    },
+    {
+      "feature": "customer_segment",
+      "label": "Customer segment",
+      "importance": 0.00909
+    },
+    {
+      "feature": "shipping_delay",
+      "label": "Shipping delay (actual \u2212 scheduled)",
+      "importance": 0.00515
+    },
+    {
+      "feature": "category_name",
+      "label": "Category",
+      "importance": 0.00421
+    },
+    {
+      "feature": "product_name",
+      "label": "Product",
+      "importance": 0.0037
+    },
+    {
+      "feature": "discount_rate",
+      "label": "Discount rate",
+      "importance": 0.00297
+    },
+    {
+      "feature": "shipping_mode",
+      "label": "Shipping mode",
+      "importance": 0.00276
+    },
+    {
+      "feature": "days_shipping_real",
+      "label": "Actual shipping days",
+      "importance": 0.0024
+    },
+    {
+      "feature": "order_value",
+      "label": "Order value",
+      "importance": 0.00228
+    },
+    {
+      "feature": "quantity",
+      "label": "Order quantity",
+      "importance": 0.00122
+    },
+    {
+      "feature": "days_shipping_scheduled",
+      "label": "Scheduled shipping days",
+      "importance": 0.00115
+    }
+  ],
+  "feature_contract": {
+    "numeric": [
+      "order_value",
+      "quantity",
+      "discount_rate",
+      "days_shipping_real",
+      "days_shipping_scheduled",
+      "shipping_delay"
+    ],
+    "categorical": [
+      "payment_type",
+      "product_name",
+      "category_name",
+      "customer_segment",
+      "order_region",
+      "shipping_mode"
+    ],
+    "all": [
+      "order_value",
+      "quantity",
+      "discount_rate",
+      "days_shipping_real",
+      "days_shipping_scheduled",
+      "shipping_delay",
+      "payment_type",
+      "product_name",
+      "category_name",
+      "customer_segment",
+      "order_region",
+      "shipping_mode"
+    ],
+    "label_rule": "Order Status == 'SUSPECTED_FRAUD'",
+    "excluded_to_prevent_leakage": [
+      "order_id",
+      "order_status",
+      "order_date"
+    ]
+  },
+  "limitations": [
+    "Scores are uncalibrated likelihoods, not probabilities of guilt.",
+    "SHAP contributions show model influence/correlation, not causal proof of fraud.",
+    "The label is *suspected* fraud (Order Status), not human-confirmed fraud.",
+    "Trained on the DataCo Smart Supply Chain dataset."
+  ]
+}

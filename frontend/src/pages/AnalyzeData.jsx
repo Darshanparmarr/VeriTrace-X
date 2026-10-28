@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   UploadCloud,
   FileSpreadsheet,
@@ -8,6 +9,8 @@ import {
   AlertTriangle,
   XCircle,
   Info,
+  ScanSearch,
+  ArrowRight,
 } from 'lucide-react'
 import { PageHeader } from '@/components/layout/PageHeader'
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
@@ -16,22 +19,44 @@ import { Badge } from '@/components/ui/badge'
 import { Spinner, ErrorState } from '@/components/ui/states'
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@/components/ui/table'
 import { api, ApiError } from '@/services/api'
-import { cn } from '@/lib/utils'
+import { cn, formatCompact } from '@/lib/utils'
 
 const STEPS = ['Upload', 'Preview', 'Validate', 'Results']
 
 export default function AnalyzeData() {
+  const navigate = useNavigate()
   const [file, setFile] = useState(null)
   const [dragging, setDragging] = useState(false)
   const [busy, setBusy] = useState(false)
   const [result, setResult] = useState(null) // { dataset, validation, preview }
   const [error, setError] = useState('')
+  const [analysis, setAnalysis] = useState(null)
+  const [analyzing, setAnalyzing] = useState(false)
+  const [analysisError, setAnalysisError] = useState('')
 
   function pick(f) {
     if (!f) return
     setFile(f)
     setResult(null)
     setError('')
+    setAnalysis(null)
+    setAnalysisError('')
+  }
+
+  async function runAnalysis() {
+    if (!result?.dataset?.id) return
+    setAnalyzing(true)
+    setAnalysisError('')
+    try {
+      const job = await api.createAnalysis(result.dataset.id)
+      setAnalysis(job)
+    } catch (err) {
+      setAnalysisError(
+        err instanceof ApiError ? err.message : 'Analysis failed. Please try again.',
+      )
+    } finally {
+      setAnalyzing(false)
+    }
   }
 
   async function runUpload() {
@@ -52,9 +77,11 @@ export default function AnalyzeData() {
     setFile(null)
     setResult(null)
     setError('')
+    setAnalysis(null)
+    setAnalysisError('')
   }
 
-  const activeStep = result ? 3 : file ? 1 : 0
+  const activeStep = analysis ? 3 : result ? 2 : file ? 1 : 0
 
   return (
     <div>
@@ -179,6 +206,18 @@ export default function AnalyzeData() {
           )}
 
           {result && <ValidationResult result={result} />}
+
+          {result?.validation?.is_valid && (
+            <AnalyzeStep
+              analyzing={analyzing}
+              analysis={analysis}
+              error={analysisError}
+              onRun={runAnalysis}
+              onView={() =>
+                analysis && navigate(`/transactions?analysis=${analysis.id}`)
+              }
+            />
+          )}
         </div>
 
         {/* Side info */}
@@ -365,10 +404,88 @@ function ValidationResult({ result }) {
         </CardContent>
       </Card>
 
-      <div className="rounded-card border border-dashed border-amber-soft/60 bg-amber-surface/40 p-4 text-sm text-amber-brown">
-        Dataset stored and validated. Running the fraud-risk model on it (with progress and a
-        downloadable results file) is wired in <strong>Phase 3</strong>.
-      </div>
     </div>
+  )
+}
+
+const BAND_META = [
+  { key: 'low', label: 'Low', color: '#059669' },
+  { key: 'medium', label: 'Medium', color: '#F59E0B' },
+  { key: 'high', label: 'High', color: '#D97706' },
+  { key: 'critical', label: 'Critical', color: '#DC2626' },
+]
+
+function AnalyzeStep({ analyzing, analysis, error, onRun, onView }) {
+  if (analysis) {
+    const s = analysis.summary || {}
+    const bands = s.band_counts || {}
+    return (
+      <Card className="border-l-4 border-l-success">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CheckCircle2 className="size-5 text-success" /> Analysis complete
+          </CardTitle>
+          <CardDescription>
+            Scored {formatCompact(s.rows_scored)} of {formatCompact(s.total_rows)} rows
+            {s.truncated && ` (capped at ${formatCompact(s.max_rows)})`}
+            {s.is_synthetic && ' · model trained on synthetic data'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {BAND_META.map((b) => (
+              <div key={b.key} className="rounded-xl border border-border bg-card p-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-sm" style={{ background: b.color }} />
+                  <span className="text-xs text-muted-foreground">{b.label}</span>
+                </div>
+                <p className="mt-1 text-xl font-bold tabular-nums text-foreground">
+                  {formatCompact(bands[b.key] || 0)}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Button onClick={onView} className="gap-2">
+              View {formatCompact(s.flagged || 0)} flagged transactions <ArrowRight className="size-4" />
+            </Button>
+            {s.model_version && (
+              <Badge variant="outline" className="font-mono text-[11px]">{s.model_version}</Badge>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <ScanSearch className="size-5 text-amber-deep" /> Run fraud analysis
+        </CardTitle>
+        <CardDescription>
+          Score every order with the trained model and generate risk bands + explanations.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        {error && (
+          <div className="mb-3 rounded-xl border border-critical/20 bg-critical/5 px-3 py-2 text-sm text-critical">
+            {error}
+          </div>
+        )}
+        <Button onClick={onRun} disabled={analyzing} className="gap-2">
+          {analyzing ? (
+            <>
+              <Spinner /> Scoring…
+            </>
+          ) : (
+            <>
+              <ScanSearch className="size-4" /> Run analysis
+            </>
+          )}
+        </Button>
+      </CardContent>
+    </Card>
   )
 }

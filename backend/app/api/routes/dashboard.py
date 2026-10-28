@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user
+from app.ml.predictor import predictor
 from app.models.transaction import RiskBand, ReviewStatus, Transaction
 from app.models.user import User
 from app.schemas.dashboard import (
@@ -58,7 +59,7 @@ def summary(
         high_risk=int(high_risk),
         reviewed=int(reviewed),
         risk_distribution=distribution,
-        model_status="not_trained",  # Phase 3 sets this to "active"
+        model_status=predictor.status()["status"],
         data_freshness=None,
         blockchain=BlockchainStatus(mode=settings.blockchain_mode, status="unavailable"),
         suspected_fraud_rate=0.0225,  # DataCo research context, not a model metric
