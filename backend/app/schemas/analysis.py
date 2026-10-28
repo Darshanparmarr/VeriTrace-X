@@ -61,6 +61,12 @@ class ExplanationOut(BaseModel):
     note: str
 
 
+class TraceResponse(BaseModel):
+    transaction: TransactionDetail
+    related: list[TransactionOut]
+    audit_events: list[dict]
+
+
 class ModelCard(BaseModel):
     status: str                       # active | not_trained
     algorithm: str | None = None

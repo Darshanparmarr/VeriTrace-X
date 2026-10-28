@@ -72,7 +72,10 @@ This project is built in phases. See the progress notes at the top of each phase
 - [x] **Phase 4** — Dashboard, transactions table, and VX transaction detail/investigation page all
   wired to live data; human review workflow (record decision, required reasons to escalate/confirm,
   preserved history, dashboard activity feed). Real SHAP explanations on the details page.
-- [ ] **Phase 5** — Traceability + Hyperledger Fabric integration.
+- [x] **Phase 5** — Supply-chain traceability page (real order journey, related orders, audit
+  events); tamper-evident **dev-mode hash-chain** audit trail with live verification
+  (Verified / Failed / Unavailable) — honestly *not* a public blockchain — plus the Hyperledger
+  Fabric production path (chaincode sketch, scripts, adapter seam). See [`blockchain/README.md`](blockchain/README.md).
 - [ ] **Phase 6** — Reports, security hardening, automated tests.
 - [ ] **Phase 7** — Deployment, docs, public demo.
 

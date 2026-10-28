@@ -24,8 +24,10 @@ Status legend: ✅ implemented (Phase 2) · ⏳ planned.
 | ✅ | GET | `/transactions/{id}/explanation` | SHAP local explanation (lazy, from stored features) |
 | ✅ | GET | `/transactions/{id}/reviews` | Review case + preserved decision history |
 | ✅ | POST | `/transactions/{id}/reviews` | Record a decision (reason required to escalate/confirm) |
-| ⏳ | GET | `/audit-events` | List audit events — Phase 5 |
-| ⏳ | GET | `/audit-events/{event_id}/verify` | Verify against the ledger — Phase 5 |
+| ✅ | GET | `/transactions/{id}/trace` | Order journey + related orders + audit events |
+| ✅ | GET | `/audit-events` | List tamper-evident audit events |
+| ✅ | GET | `/audit-events/{event_id}` | Audit event detail (hashes) |
+| ✅ | GET | `/audit-events/{event_id}/verify` | Verify integrity (development hash-chain; `unavailable` in fabric mode until configured) |
 | ⏳ | GET | `/reports` | Report data for export — Phase 6 |
 
 ### Upload validation contract

@@ -105,4 +105,16 @@ export const api = {
 
   // Model card
   modelCard: () => request('/model'),
+
+  // Traceability
+  traceTransaction: (id) => request(`/transactions/${id}/trace`),
+
+  // Blockchain audit
+  listAuditEvents: (params = {}) => {
+    const qs = new URLSearchParams(
+      Object.entries(params).filter(([, v]) => v != null && v !== ''),
+    ).toString()
+    return request(`/audit-events${qs ? `?${qs}` : ''}`)
+  },
+  verifyAuditEvent: (id) => request(`/audit-events/${id}/verify`),
 }

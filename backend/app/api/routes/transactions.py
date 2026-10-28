@@ -11,7 +11,8 @@ from app.core.deps import get_current_user, require_roles
 from app.ml.predictor import predictor
 from app.models.transaction import RiskBand, ReviewStatus, Transaction
 from app.models.user import Role, User
-from app.schemas.analysis import ExplanationOut, TransactionDetail, TransactionOut
+from app.schemas.analysis import ExplanationOut, TraceResponse, TransactionDetail, TransactionOut
+from app.schemas.audit import AuditEventOut
 from app.schemas.common import Page
 from app.schemas.review import ReviewCaseOut, ReviewDecisionCreate, ReviewDecisionOut
 from app.services import review_service
@@ -83,6 +84,46 @@ def get_transaction(
     if tx is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
     return TransactionDetail.model_validate(tx)
+
+
+@router.get("/{transaction_id}/trace", response_model=TraceResponse)
+def trace_transaction(
+    transaction_id: int,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+) -> TraceResponse:
+    tx = db.get(Transaction, transaction_id)
+    if tx is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="Transaction not found.")
+
+    # Related orders: same analysis + same region or supplier (not itself).
+    related_stmt = select(Transaction).where(Transaction.id != tx.id)
+    if tx.analysis_id is not None:
+        related_stmt = related_stmt.where(Transaction.analysis_id == tx.analysis_id)
+    conds = [c for c in (
+        (Transaction.location == tx.location) if tx.location else None,
+        (Transaction.supplier == tx.supplier) if tx.supplier else None,
+    ) if c is not None]
+    if conds:
+        related_stmt = related_stmt.where(or_(*conds))
+    related = db.scalars(
+        related_stmt.order_by(Transaction.risk_score.desc().nullslast()).limit(6)
+    ).all()
+
+    # Audit events referencing this transaction.
+    from app.models.audit import AuditEvent
+
+    events = db.scalars(
+        select(AuditEvent)
+        .where(AuditEvent.entity_type == "transaction", AuditEvent.entity_id == str(tx.id))
+        .order_by(AuditEvent.id.desc())
+    ).all()
+
+    return TraceResponse(
+        transaction=TransactionDetail.model_validate(tx),
+        related=[TransactionOut.model_validate(r) for r in related],
+        audit_events=[AuditEventOut.model_validate(e).model_dump() for e in events],
+    )
 
 
 @router.get("/{transaction_id}/explanation", response_model=ExplanationOut)

@@ -148,6 +148,25 @@ def run_analysis(db: Session, dataset: Dataset, user: User | None) -> AnalysisJo
             "is_synthetic": meta.get("is_synthetic", False),
         }
         dataset.status = DatasetStatus.analyzed
+
+        # Tamper-evident audit event (local hash-chain; see app/blockchain).
+        from app.blockchain import service as audit
+        from app.models.audit import AuditEventType
+
+        audit.record_event(
+            db,
+            AuditEventType.analysis_completed,
+            entity_type="analysis",
+            entity_id=str(job.id),
+            payload={
+                "analysis_id": job.id,
+                "dataset_id": dataset.id,
+                "rows_scored": len(work),
+                "flagged": flagged,
+                "model_version": meta.get("version"),
+            },
+            actor_id=user.id if user else None,
+        )
         db.commit()
         db.refresh(job)
         return job

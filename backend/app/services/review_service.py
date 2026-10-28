@@ -54,6 +54,31 @@ def record_decision(
     # Current status reflects the latest decision (history is preserved as rows).
     case.status = decision
     transaction.review_status = decision
+
+    # Tamper-evident audit event for the decision (local hash-chain).
+    from app.blockchain import service as audit
+    from app.models.audit import AuditEventType
+
+    event_type = (
+        AuditEventType.case_escalated
+        if decision is ReviewStatus.escalated
+        else AuditEventType.review_decision_recorded
+    )
+    audit.record_event(
+        db,
+        event_type,
+        entity_type="transaction",
+        entity_id=str(transaction.id),
+        payload={
+            "transaction_id": transaction.id,
+            "order_id": transaction.order_id,
+            "decision": decision.value,
+            "has_reason": bool(reason and reason.strip()),
+            "actor_id": user.id,
+        },
+        actor_id=user.id,
+    )
+
     db.commit()
     db.refresh(case)
     return case
